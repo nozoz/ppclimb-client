@@ -9,9 +9,9 @@ import (
 )
 
 type Client struct {
+	Connected bool
 	url       url.URL
 	conn      *websocket.Conn
-	Connected bool
 }
 
 func NewClient() *Client {
