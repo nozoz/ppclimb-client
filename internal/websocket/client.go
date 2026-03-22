@@ -14,7 +14,7 @@ type Client struct {
 	Connected bool
 	url       url.URL
 	conn      *websocket.Conn
-	Messages  chan<- models.OsuMessage
+	Messages  chan models.OsuMessage
 }
 
 func NewClient() *Client {
