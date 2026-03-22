@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"ppclimb-client/internal/tracker"
 	"ppclimb-client/internal/websocket"
 )
 
@@ -12,6 +13,9 @@ func main() {
 
 	c := websocket.NewClient()
 	go c.Run()
+
+	t := tracker.NewTracker(c.Messages)
+	go t.Run()
 
 	<-interrupt
 }
