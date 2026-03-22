@@ -1,8 +1,10 @@
 package websocket
 
 import (
+	"encoding/json"
 	"log"
 	"net/url"
+	"ppclimb-client/internal/models"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -12,6 +14,7 @@ type Client struct {
 	Connected bool
 	url       url.URL
 	conn      *websocket.Conn
+	Messages  chan<- models.OsuMessage
 }
 
 func NewClient() *Client {
@@ -34,6 +37,29 @@ func (c *Client) Connect() error {
 	return nil
 }
 
+func (c *Client) Read() {
+	defer func() {
+		c.conn.Close()
+		c.Connected = false
+	}()
+
+	for {
+		_, message, err := c.conn.ReadMessage()
+		if err != nil {
+			log.Println("connection lost:", err)
+			return
+		}
+
+		var msg models.OsuMessage
+		if err := json.Unmarshal(message, &msg); err != nil {
+			log.Println("error unmarshalling message:", err)
+			continue
+		}
+
+		c.Messages <- msg
+	}
+}
+
 func (c *Client) Run() {
 	for {
 		if err := c.Connect(); err != nil {
@@ -41,5 +67,7 @@ func (c *Client) Run() {
 			time.Sleep(3 * time.Second)
 			continue
 		}
+
+		c.Read()
 	}
 }
