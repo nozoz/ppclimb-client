@@ -18,6 +18,7 @@ func (t *Tracker) Run() {
 
 	for msg := range t.messages {
 		if prev.State.Name == "play" && msg.State.Name == "resultScreen" {
+			// Tosu is late to update the pp field sometimes - so we continue to the next iteration if it's not present
 			if msg.ResultsScreen.PP.Current > 0 {
 				go t.submitScore(msg)
 				prev = msg
